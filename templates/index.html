@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-posta Gövdesi İzleyici</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: flex;
+      }
+
+      .table {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+      }
+
+      .blinking {
+        animation: blinkingText 1.5s infinite;
+      }
+
+      @keyframes blinkingText {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .table-striped tbody tr {
+        font-weight: bold;
+        height: 5px;
+      }
+
+      .table-striped {
+        font-size: 40px;
+        border: 2px solid black;
+      }
+
+      .table td,
+      .table th {
+        padding: 5px;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 2px solid black;
+      }
+
+      .table-striped tbody tr.blinking {
+        background-color: rgba(255, 0, 0, 0.3);
+      }
+
+      .table-striped tbody tr:not(.blinking) {
+        background-color: rgba(0, 255, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <table class="table table-striped" id="email-table">
+        <thead>
+          <tr>
+            <th>IST NO</th>
+            <th>IST ADI</th>
+            <th>IST DURUS ADI</th>
+            <th>Bildirim Zamanı</th>
+          </tr>
+        </thead>
+        <tbody id="email-body"></tbody>
+      </table>
+    </div>
+
+    <script>
+      function updateEmails() {
+        fetch("/update")
+          .then((response) => response.json())
+          .then((data) => {
+            const emailBody = document.getElementById("email-body");
+            emailBody.innerHTML = "";
+            data.emails.forEach((email) => {
+              const row = document.createElement("tr");
+
+              row.className = email["IST DURUS ADI"].includes("Bekleniyor")
+                ? "blinking"
+                : "";
+
+              row.innerHTML = `
+                            <td>${email["IST NO"]}</td>
+                            <td>${email["IST ADI"]}</td>
+                            <td>${email["IST DURUS ADI"]}</td>
+                            <td>${email["Zaman"]}</td>
+                        `;
+
+              emailBody.appendChild(row);
+            });
+          });
+      }
+
+      setInterval(updateEmails, 10000);
+    </script>
+  </body>
+</html>
