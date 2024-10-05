@@ -26,7 +26,7 @@ def check_emails():
             mail.select("inbox")
 
             today = datetime.today().strftime("%d-%b-%Y")
-            status, messages = mail.search(None, f'(ON "{today}" BODY "Bakim Personeli")')
+            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Elektrik Arıza - Bakım Personeli")')
 
             if status == "OK":
                 email_ids = messages[0].split()
