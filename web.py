@@ -9,8 +9,8 @@ from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
-username = "muhammedfthyzgl@gmail.com"
-password = "fplflbpsyemswkoo"
+username = "elektrikcmk@gmail.com"
+password = "tmvtpyqcotpbsfdk"
 mail_server = "imap.gmail.com"
 
 emails_info = []
@@ -26,7 +26,7 @@ def check_emails():
             mail.select("inbox")
 
             today = datetime.today().strftime("%d-%b-%Y")
-            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Elektrik Arıza - Bakım Personeli")')
+            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Elektrik Ariza - Bakim Personeli")')
 
             if status == "OK":
                 email_ids = messages[0].split()
