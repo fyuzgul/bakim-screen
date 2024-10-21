@@ -61,11 +61,26 @@ def get_email_body(msg):
 def get_email_time(msg):
     email_time = msg['Date']
     if email_time:
-        parsed_time = email.utils.parsedate_to_datetime(email_time)
-        local_tz = pytz.timezone("Europe/Istanbul")
-        local_time = parsed_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
-        return local_time.strftime('%H:%M')
+        try:
+            # E-posta zamanını al ve doğru formata çevir
+            parsed_time = email.utils.parsedate_to_datetime(email_time)
+            if parsed_time is None:
+                raise ValueError("E-posta zamanını çözemedi.")
+            
+            # Eğer parsed_time'de timezone bilgisi yoksa UTC olarak kabul et
+            if parsed_time.tzinfo is None:
+                parsed_time = parsed_time.replace(tzinfo=pytz.utc)
+            
+            # İstanbul saatine çevir
+            local_tz = pytz.timezone("Europe/Istanbul")
+            local_time = parsed_time.astimezone(local_tz)
+            return local_time.strftime('%H:%M')
+        
+        except Exception as e:
+            print(f"Tarih formatında hata: {e}")
+            return "Bilinmiyor"
     return "Bilinmiyor"
+
 
 def extract_email_info(body):
     info = {}
