@@ -5,9 +5,6 @@ from email.header import decode_header
 from datetime import datetime
 import time
 import pytz
-from gtts import gTTS
-import os
-from playsound import playsound
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
@@ -115,36 +112,15 @@ def remove_email_after_delay(ist_no, delay):
     if ist_no in arrived_emails:
         arrived_emails.pop(ist_no)
 
-
-
 def display_email(email_info, email_time, status):
     email_info["Zaman"] = email_time
     ist_no = email_info.get("IST NO", "")
     
     if status == "waiting":
         waiting_emails[ist_no] = email_info
-        play_voice_alert(f"{ist_no} için Mekanik arıza var. Bakım personeli bekleniyor")
 
     elif status == "arrived":
         arrived_emails[ist_no] = email_info
-
-def play_voice_alert(message):
-    try:
-        # Metni sese çevir
-        tts = gTTS(text=message, lang='tr')
-        
-        # Ses dosyasını kaydet
-        tts.save("alert.mp3")
-        
-        # Ses dosyasını çal
-        playsound("alert.mp3")
-        
-        # Ses dosyasını sil
-        os.remove("alert.mp3")
-    
-    except Exception as e:
-        print(f"Ses oynatmada hata: {e}")
-
 
 @app.route('/')
 def index():
