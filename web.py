@@ -5,6 +5,7 @@ from email.header import decode_header
 from datetime import datetime
 import time
 import pytz
+import webbrowser
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
@@ -26,7 +27,7 @@ def check_emails():
             mail.select("inbox")
 
             today = datetime.today().strftime("%d-%b-%Y")
-            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Mekanik Ariza - Bakim Personeli")')
+            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Mekanik Ariza")')
 
             if status == "OK":
                 email_ids = messages[0].split()
@@ -44,7 +45,7 @@ def check_emails():
                             process_email(email_info, email_time)
 
         except Exception as e:
-            print(f"Hata oluştu: {e}")
+            print(f"Hata oluÅŸtu: {e}")
         time.sleep(10)
 
 def get_email_body(msg):
@@ -62,22 +63,22 @@ def get_email_time(msg):
     email_time = msg['Date']
     if email_time:
         try:
-            # E-posta zamanını al ve doğru formata çevir
+            # E-posta zamanÄ±nÄ± al ve doÄŸru formata Ã§evir
             parsed_time = email.utils.parsedate_to_datetime(email_time)
             if parsed_time is None:
-                raise ValueError("E-posta zamanını çözemedi.")
+                raise ValueError("E-posta zamanÄ±nÄ± Ã§Ã¶zemedi.")
             
-            # Eğer parsed_time'de timezone bilgisi yoksa UTC olarak kabul et
+            # EÄŸer parsed_time'de timezone bilgisi yoksa UTC olarak kabul et
             if parsed_time.tzinfo is None:
                 parsed_time = parsed_time.replace(tzinfo=pytz.utc)
             
-            # İstanbul saatine çevir
+            # Ä°stanbul saatine Ã§evir
             local_tz = pytz.timezone("Europe/Istanbul")
             local_time = parsed_time.astimezone(local_tz)
             return local_time.strftime('%H:%M')
         
         except Exception as e:
-            print(f"Tarih formatında hata: {e}")
+            print(f"Tarih formatÄ±nda hata: {e}")
             return "Bilinmiyor"
     return "Bilinmiyor"
 
@@ -95,7 +96,7 @@ def process_email(email_info, email_time):
     ist_no = email_info.get("IST NO", "")
     ist_durus = email_info.get("IST DURUS ADI", "")
 
-    if "Bekleniyor" in ist_durus:
+    if "1250'lik Sehpa Arizasi" in ist_durus or "Bekleniyor" in ist_durus or "630'luk Sehpa Arizasi" in ist_durus:
         if ist_no in arrived_emails:
             arrived_emails.pop(ist_no)
         if ist_no not in waiting_emails:
@@ -132,6 +133,9 @@ def update_emails():
     emails_info = list(waiting_emails.values()) + list(arrived_emails.values())
     return jsonify(emails=emails_info)
 
+
 if __name__ == "__main__":
     threading.Thread(target=check_emails, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+

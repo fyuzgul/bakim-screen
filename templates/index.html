@@ -93,16 +93,20 @@
             data.emails.forEach((email) => {
               const row = document.createElement("tr");
 
-              row.className = email["IST DURUS ADI"].includes("Bekleniyor")
+              row.className = [
+                "Bekleniyor",
+                "630'luk Sehpa Arizasi",
+                "1250'lik Sehpa Arizasi",
+              ].some((status) => email["IST DURUS ADI"].includes(status))
                 ? "blinking"
                 : "";
 
               row.innerHTML = `
-                            <td>${email["IST NO"]}</td>
-                            <td>${email["IST ADI"]}</td>
-                            <td>${email["IST DURUS ADI"]}</td>
-                            <td>${email["Zaman"]}</td>
-                        `;
+                        <td>${email["IST NO"]}</td>
+                        <td>${email["IST ADI"]}</td>
+                        <td>${email["IST DURUS ADI"]}</td>
+                        <td>${email["Zaman"]}</td>
+                    `;
 
               emailBody.appendChild(row);
             });
