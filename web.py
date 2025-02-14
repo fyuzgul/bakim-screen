@@ -10,8 +10,8 @@ from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
-username = "mekanikbakimcmkkablo@gmail.com"
-password = "sbiktfagyinhzjgu"
+username = "elektrikcmk@gmail.com"
+password = "fzyjnbjxhzirtpqs"
 mail_server = "imap.gmail.com"
 
 emails_info = []
@@ -27,7 +27,7 @@ def check_emails():
             mail.select("inbox")
 
             today = datetime.today().strftime("%d-%b-%Y")
-            status, messages = mail.search(None, f'(ON "{today}" BODY "Makine Mekanik Ariza")')
+            status, messages = mail.search(None, f'ON "{today}"')
 
             if status == "OK":
                 email_ids = messages[0].split()
@@ -78,7 +78,7 @@ def get_email_time(msg):
             return local_time.strftime('%H:%M')
         
         except Exception as e:
-            print(f"Tarih formatÄ±nda hata: {e}")
+            print(f"Tarih formatÄ±nda hata: {e}") 
             return "Bilinmiyor"
     return "Bilinmiyor"
 
@@ -90,23 +90,43 @@ def extract_email_info(body):
         if ":" in line:
             key, value = line.split(":", 1)
             info[key.strip()] = value.strip().strip('[]')
+        else:
+            # "TREX CALISANI GELSIN" gibi satırlar için ek işleme yapılabilir
+            if line.strip():
+                info["Additional_Info"] = line.strip()
     return info
 
+
 def process_email(email_info, email_time):
+    print(email_info)
     ist_no = email_info.get("IST NO", "")
     ist_durus = email_info.get("IST DURUS ADI", "")
+    addition = email_info.get("Additional_Info", "")
+
+    if "TREX CALISANI GELSIN" in addition:
+        ist_durus = "TREX CALISANI GELSIN"
+        email_info["IST DURUS ADI"] = ist_durus  
+        display_email(email_info, email_time, "waiting")
+        threading.Thread(target=remove_waiting_email_after_delay, args=(ist_no, 180)).start()
+        
+
 
     if "1250'lik Sehpa Arizasi" in ist_durus or "Bekleniyor" in ist_durus or "630'luk Sehpa Arizasi" in ist_durus:
         if ist_no in arrived_emails:
             arrived_emails.pop(ist_no)
-        if ist_no not in waiting_emails:
-            display_email(email_info, email_time, "waiting")
+        
+        display_email(email_info, email_time, "waiting")
 
     elif "Geldi" in ist_durus:
         if ist_no in waiting_emails:
             waiting_emails.pop(ist_no)
             display_email(email_info, email_time, "arrived")
             threading.Thread(target=remove_email_after_delay, args=(ist_no, 180)).start()
+
+def remove_waiting_email_after_delay(ist_no, delay):
+    time.sleep(delay)
+    if ist_no in waiting_emails:
+        waiting_emails.pop(ist_no)
 
 def remove_email_after_delay(ist_no, delay):
     time.sleep(delay)
