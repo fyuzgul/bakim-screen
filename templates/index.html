@@ -36,21 +36,29 @@
             const emailBody = document.getElementById("email-body");
             emailBody.innerHTML = "";
             data.emails.forEach((email) => {
+              const status = email["IST DURUS ADI"];
+              let rowClass = "bg-green-500"; // Varsayılan yeşil arka plan
+
+              if (
+                [
+                  "Bekleniyor",
+                  "630'luk Sehpa Arizasi",
+                  "1250'lik Sehpa Arizasi",
+                ].some((s) => status.includes(s))
+              ) {
+                rowClass = "bg-red-800 animate-pulse"; // Kırmızı ve yanıp sönen
+              } else if (status.includes("TREX CALISANI GELSIN")) {
+                rowClass = "bg-yellow-500"; // Sarı ama yanıp sönmeyen
+              }
+
               const row = document.createElement("tr");
-              row.className = [
-                "Bekleniyor",
-                "630'luk Sehpa Arizasi",
-                "1250'lik Sehpa Arizasi",
-                "TREX CALISANI GELSIN",
-              ].some((status) => email["IST DURUS ADI"].includes(status))
-                ? "bg-red-800 animate-pulse"
-                : "bg-green-500";
+              row.className = rowClass;
               row.innerHTML = `
-                        <td class="py-6 px-6 border border-gray-300">${email["IST NO"]}</td>
-                        <td class="py-6 px-6 border border-gray-300">${email["IST ADI"]}</td>
-                        <td class="py-6 px-6 border border-gray-300">${email["IST DURUS ADI"]}</td>
-                        <td class="py-6 px-6 border border-gray-300">${email["Zaman"]}</td>
-                    `;
+                <td class="py-6 px-6 border border-gray-300">${email["IST NO"]}</td>
+                <td class="py-6 px-6 border border-gray-300">${email["IST ADI"]}</td>
+                <td class="py-6 px-6 border border-gray-300">${email["IST DURUS ADI"]}</td>
+                <td class="py-6 px-6 border border-gray-300">${email["Zaman"]}</td>
+              `;
               emailBody.appendChild(row);
             });
           });
